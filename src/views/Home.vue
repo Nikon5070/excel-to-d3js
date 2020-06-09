@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png">
-    <ExportExcel msg="Welcome to Your Vue.js App"/>
+    <ExportExcel msg="Export Excel to D3.js"/>
   </div>
 </template>
 
