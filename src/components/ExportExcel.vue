@@ -6,10 +6,16 @@ import {
 import { ElUpload, ElUploadInternalFileDetail } from 'element-ui/types/upload';
 import { read as readExcel, utils as utilsExcel } from 'xlsx';
 import { makeCols } from '@/utils/xlsx';
-import { Rows } from '@/types/xlsx';
+import { DataExcel } from '@/types/xlsx';
+import { VNode } from 'vue';
+
+const ExcelTable = () => import(/* webpackChunkName: "excel-table" */ '@/components/ExcelTable.vue');
 
 @Component({
   name: 'ExportExcel',
+  components: {
+    ExcelTable,
+  },
   mounted() {
     console.log('mounted', this.$refs);
   },
@@ -29,7 +35,6 @@ export default class ExportExcel extends Vue {
   async onChange(file: ElUploadInternalFileDetail) {
     const fileRaw = file.raw;
     const reader = new FileReader();
-    console.log('ON CHANGE');
 
     reader.onload = (e: ProgressEvent<FileReader>) => {
       if (e.target && e.target.result) {
@@ -39,29 +44,27 @@ export default class ExportExcel extends Vue {
         });
 
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        console.log({ w: worksheet });
         this.dataExcel = utilsExcel.sheet_to_json(worksheet, {
           header: 1,
         });
-
         const ref = worksheet['!ref'] as string;
         this.cols = makeCols(ref, utilsExcel);
-
-        console.log({
-          de: this.dataExcel,
-          c: this.cols,
-        });
-
-        /* Convert array of arrays */
-        // const sheetToJson = utilsExcel.sheet_to_json(worksheet, { header: 1 });
-        /* Update state */
-        // this.cols = make_cols(ws['!ref']);
       }
     };
 
     reader.readAsArrayBuffer(fileRaw);
   }
 
+  getTable(props: DataExcel): VNode | null {
+    const { rows, cols } = props;
+    if (!rows?.length || !cols?.length) return null;
+
+    return (
+      <ExcelTable
+        props={props}
+      />
+    );
+  }
 
   public render() {
     const elUpload = {
@@ -74,12 +77,18 @@ export default class ExportExcel extends Vue {
         onChange: this.onChange,
       },
     };
+
+    const tableData: DataExcel = {
+      rows: this.dataExcel,
+      cols: this.cols,
+    };
+
     return (
       <div class="export-excel">
         <el-upload
           {...elUpload}
         >
-          <i class="el-icon-upload"></i>
+          <i class="el-icon-upload" />
           <div class="el-upload__text">
             Drop file here or <em>click to upload</em>
           </div>
@@ -87,36 +96,8 @@ export default class ExportExcel extends Vue {
             xlsx files with a size less than 500kb
           </div>
         </el-upload>
-        {
-          (!!(this.dataExcel && this.dataExcel.length)
-          && <table class="table table-striped">
 
-            <thead>
-                <tr>
-                  {
-                    this.cols.map((c, key) => <th key={key}> { this.dataExcel[0][key] }</th>)
-                  }
-                </tr>
-            </thead>
-            <tbody>
-              {
-                this.dataExcel.slice(1).map((r, key) => (
-                    <tr key={key}>
-                      { this.cols.map((c, colKey) => <td key={colKey}> { r[colKey] } </td>) }
-                    </tr>
-                ))
-              }
-              <tr> slice { Rows.Holidays } </tr>
-              {
-                this.dataExcel.slice(Rows.Holidays).map((r, key) => (
-                  <tr key={key}>
-                    { this.cols.map((c, colKey) => <td key={colKey}> { r[colKey] } </td>) }
-                  </tr>
-                ))
-              }
-            </tbody>
-          </table>)
-        }
+        {this.getTable(tableData)}
       </div>
     );
   }

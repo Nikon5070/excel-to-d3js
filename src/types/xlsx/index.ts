@@ -103,3 +103,8 @@ export enum Rows {
 //   'С бонусом / штрафом': Rows.WithBonusPenalty,
 //   Выплаты: Rows.Payouts,
 // };
+
+export interface DataExcel {
+  rows: string[];
+  cols: string[];
+}
