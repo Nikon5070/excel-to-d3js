@@ -1,58 +1,31 @@
 <script lang="tsx">
 import {
-  Component, Prop, Ref, Vue,
+  Component, Vue,
 } from 'vue-property-decorator';
 
-import { ElUpload, ElUploadInternalFileDetail } from 'element-ui/types/upload';
-import { read as readExcel, utils as utilsExcel } from 'xlsx';
-import { makeCols } from '@/utils/xlsx';
 import { DataExcel } from '@/types/xlsx';
 import { VNode } from 'vue';
 
-const ExcelTable = () => import(/* webpackChunkName: "excel-table" */ '@/components/ExcelTable.vue');
+// eslint-disable-next-line max-len
+// const ExcelTable: any = () => import(/* webpackChunkName: "excel-table" */ '@/components/ExcelTable.vue').then((module) => module.default);
+import ExcelTable from '@/components/ExcelTable.vue';
+import UploadExcel from '@/components/UploadExcel.vue';
 
 @Component({
   name: 'ExportExcel',
   components: {
     ExcelTable,
-  },
-  mounted() {
-    console.log('mounted', this.$refs);
-  },
-  created() {
-    console.log('created');
+    UploadExcel,
   },
 })
 export default class ExportExcel extends Vue {
-  @Prop() private msg!: string;
-
-  @Ref('upload') readonly elUpload!: ElUpload;
-
   dataExcel: string[] = [];
 
   cols: string[] = [];
 
-  async onChange(file: ElUploadInternalFileDetail) {
-    const fileRaw = file.raw;
-    const reader = new FileReader();
-
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      if (e.target && e.target.result) {
-        const data = new Uint8Array(e.target.result as ArrayBuffer);
-        const workbook = readExcel(data, {
-          type: 'buffer',
-        });
-
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        this.dataExcel = utilsExcel.sheet_to_json(worksheet, {
-          header: 1,
-        });
-        const ref = worksheet['!ref'] as string;
-        this.cols = makeCols(ref, utilsExcel);
-      }
-    };
-
-    reader.readAsArrayBuffer(fileRaw);
+  setDataExcel({ rows, cols }: DataExcel) {
+    this.dataExcel = rows;
+    this.cols = cols;
   }
 
   getTable(props: DataExcel): VNode | null {
@@ -67,35 +40,22 @@ export default class ExportExcel extends Vue {
   }
 
   public render() {
-    const elUpload = {
-      ref: 'upload',
-      class: 'upload-demo',
-      props: {
-        action: '',
-        drag: true,
-        autoUpload: false,
-        onChange: this.onChange,
-      },
-    };
-
     const tableData: DataExcel = {
       rows: this.dataExcel,
       cols: this.cols,
     };
 
+    const upload = {
+      on: {
+        change: this.setDataExcel,
+      },
+    };
+
     return (
       <div class="export-excel">
-        <el-upload
-          {...elUpload}
-        >
-          <i class="el-icon-upload" />
-          <div class="el-upload__text">
-            Drop file here or <em>click to upload</em>
-          </div>
-          <div slot="tip" class="el-upload__tip">
-            xlsx files with a size less than 500kb
-          </div>
-        </el-upload>
+        <UploadExcel
+          {...upload}
+        />
 
         {this.getTable(tableData)}
       </div>
@@ -104,13 +64,6 @@ export default class ExportExcel extends Vue {
 }
 </script>
 
-<style lang="scss" scoped module>
-  .export-excel {
-    background: blue;
+<style lang="scss" scoped>
 
-    .upload-demo .el-upload {
-      color: red;
-      background: red;
-    }
-  }
 </style>
