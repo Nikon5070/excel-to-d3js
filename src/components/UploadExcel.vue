@@ -1,4 +1,24 @@
-<script lang="tsx">
+<template>
+  <el-upload
+    ref="upload"
+    class="upload-demo"
+    action=""
+    :drag="true"
+    :auto-upload="false"
+    :on-change="onChange"
+    :multiple="false"
+  >
+    <i class="el-icon-upload"/>
+    <div class="el-upload__text">
+      Drop file here or <em>click to upload</em>
+    </div>
+    <div slot="tip" class="el-upload__tip">
+      xlsx files with a size less than 500kb
+    </div>
+  </el-upload>
+</template>
+
+<script lang="ts">
 import {
   Component, Ref, Vue,
 } from 'vue-property-decorator';
@@ -53,33 +73,6 @@ export default class UploadExcel extends Vue {
     };
 
     reader.readAsArrayBuffer(fileRaw);
-  }
-
-  public render() {
-    const elUpload = {
-      ref: 'upload',
-      class: 'upload-demo',
-      props: {
-        action: '',
-        drag: true,
-        autoUpload: false,
-        onChange: this.onChange,
-      },
-    };
-
-    return (
-      <el-upload
-        {...elUpload}
-      >
-        <i class="el-icon-upload" />
-        <div class="el-upload__text">
-          Drop file here or <em>click to upload</em>
-        </div>
-        <div slot="tip" class="el-upload__tip">
-          xlsx files with a size less than 500kb
-        </div>
-      </el-upload>
-    );
   }
 }
 </script>

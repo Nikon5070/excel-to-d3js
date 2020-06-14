@@ -1,3 +1,32 @@
+<template>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th
+        v-for="(item, i) in cols"
+        :key="i"
+      >
+        {{ rows[Rows.Cols][i] }}
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+      <tr
+        v-for="(row, iRow) in rows.slice(Rows.Holidays)"
+        :key="iRow"
+      >
+        <td
+          v-for="(col, iCol) in cols"
+          :key="iCol"
+        >
+          {{ row[iCol] }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</template>
+
 <script lang="tsx">
 import {
   Component, Prop, Vue,
@@ -17,42 +46,11 @@ export default class ExportExcel extends Vue {
     default: () => [],
   }) private cols!: string[];
 
-  public render() {
-    if (!this.rows?.length || !this.cols?.length) return null;
-
-    return (
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          {
-            this.cols.map((c, key) => <th key={key}> {this.rows[0][key]}</th>)
-          }
-        </tr>
-        </thead>
-        <tbody>
-        {
-          this.rows.slice(1).map((r, key) => (
-            <tr key={key}>
-              {this.cols.map((c, colKey) => <td key={colKey}> {r[colKey]} </td>)}
-            </tr>
-          ))
-        }
-        <tr> slice {Rows.Holidays} </tr>
-        {
-          this.rows.slice(Rows.Holidays).map((r, key) => (
-            <tr key={this.rows.length + key}>
-              {this.cols.map((c, colKey) => <td key={colKey}> {r[colKey]} </td>)}
-            </tr>
-          ))
-        }
-        </tbody>
-      </table>
-    );
-  }
+  Rows = Rows;
 }
 </script>
 
-<style lang="scss" scoped module>
+<style lang="scss" scoped>
   .export-excel {
     background: blue;
 

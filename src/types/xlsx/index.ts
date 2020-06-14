@@ -1,7 +1,6 @@
-import { Row } from 'element-ui';
-
 export enum Colums {
-  Year = 1,
+  Rows,
+  Year,
   January,
   February,
   March,
@@ -54,19 +53,20 @@ export enum Colums {
 
 
 export enum Rows {
+  Cols,
   ToPayoff,
   Paid,
   Balance,
-  Holidays= 5,
+  Holidays = 6,
   Vacation,
   Hospital,
   DayOff,
-  Salary,
+  Salary = 12,
   CostHolidaysAndVacation,
   CostSickLeave,
   LeaveTime,
   CostPerHour,
-  Production,
+  Production = 19,
   WorkingDays,
   Plan,
   Fact,
